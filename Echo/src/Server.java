@@ -231,8 +231,7 @@ public abstract class Server
     @param pClientIP IP-Nummer des Clients, der neu angemeldet ist
     @param pClientPort Port-Nummer des Clients, der neu angemeldet ist
     */
-    public void processNewConnection(String pClientIP, int pClientPort)
-    {}
+    abstract void processNewConnection(String pClientIP, int pClientPort);
     
     /**
     Eine Nachricht von einem Client wurde bearbeitet.<br>
@@ -242,8 +241,7 @@ public abstract class Server
     @param pMessage Die empfangene Nachricht, die bearbeitet werden soll
     */
 
-    public void processMessage(String pClientIP, int pClientPort, String pMessage)
-    {}
+    abstract void processMessage(String pClientIP, int pClientPort, String pMessage);
 
     /**
     Die Verbindung mit einem Client wurde beendet oder verloren.<br>
@@ -251,8 +249,7 @@ public abstract class Server
     @param pClientIP IP-Nummer des Clients, mit dem die Verbindung beendet wurde
     @param pClientPort Port-Nummer des Clients, mit dem die Verbindung beendet wurde
     */
-    public void processClosedConnection(String pClientIP, int pClientPort)
-    {}
+    abstract void processClosedConnection(String pClientIP, int pClientPort);
     
     /**
     Der Server wurde geschlossen.
