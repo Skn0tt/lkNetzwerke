@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Echo/Echo.iml" filepath="$PROJECT_DIR$/Echo/Echo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MailSender/MailSender.iml" filepath="$PROJECT_DIR$/MailSender/MailSender.iml" />
       <module fileurl="file://$PROJECT_DIR$/Time/Time.iml" filepath="$PROJECT_DIR$/Time/Time.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/lkNetzwerke.iml" filepath="$PROJECT_DIR$/.idea/lkNetzwerke.iml" />
     </modules>
