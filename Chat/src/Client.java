@@ -35,7 +35,7 @@ public abstract class Client
         /**
         Der ClientEmpfaenger hat den zugeh&ouml;rigen Client und die zugeh&ouml;rige Connection kennen gelernt.<br>
         @param pClient zugeh&ouml;riger Client, der die einkommenden Nachrichten bearbeitet
-        @param pConnection zugeh&ouml;rige Connection, die die einkommenden Nachrichten empfŠngt
+        @param pConnection zugeh&ouml;rige Connection, die die einkommenden Nachrichten empfï¿½ngt
         */
         public Clientempfaenger(Client pClient, Connection pConnection)
         {

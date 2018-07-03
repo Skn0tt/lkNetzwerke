@@ -1,149 +1,210 @@
-import java.util.HashMap;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.function.Consumer;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
-/**
- * Created by simon.knott on 29.06.2018.
- */
 public class ChatServer extends Server {
 
-    private HashMap<String, UserInformation> usersByAddress = new HashMap<>();
-    private HashMap<String, UserInformation> usersByNick = new HashMap<>();
+  private UserRepository userRepository = new UserRepository(s -> this.publishRecipients());
+  private GroupRepository groupRepository = new GroupRepository(s -> this.publishRecipients());
 
-    public ChatServer(int port) {
-        super(port);
+  private RequestBuilder requestBuilder = new RequestBuilder(
+    userRepository::find,
+    answer -> send(answer.ip, answer.port, answer.msg)
+  );
+
+  private ChatServer(int port) {
+    super(port);
+
+    System.out.printf("Chatserver listening on %s.", port);
+  }
+
+  @Override
+  void processNewConnection(String pClientIP, int pClientPort) {}
+
+  @Override
+  void processMessage(String pClientIP, int pClientPort, String pMessage) {
+    try {
+      Request r = requestBuilder.build(pClientIP, pClientPort, pMessage);
+      onRequest(r);
+    } catch (Command.CommandVerbUnknownException e) {
+      send(pClientIP, pClientPort, "-CommandVerb unknown");
+    } catch (UserRepository.UserBannedException e) {
+      send(pClientIP, pClientPort, "-You are banned.");
+    }
+  }
+
+  @Override
+  void processClosedConnection(String pClientIP, int pClientPort) {}
+
+  private void onRequest(Request r) {
+    log(r);
+
+    if (!r.userKnown) {
+      switch (r.cmd.verb) {
+        case LOGIN:
+          login(r);
+          break;
+      }
+      return;
     }
 
-    @Override
-    void processNewConnection(String pClientIP, int pClientPort) {}
+    switch (r.cmd.verb) {
+      case QUIT:
+        quitHandler(r);
+        break;
+      case NEW_GROUP:
+        newGroup(r);
+        break;
+      case BAN_USER:
+        banUserHandler(r);
+        break;
+      case HELP:
+        helpHandler(r);
+        break;
+      case SEND:
+        sendHandler(r);
+        break;
+      case SEND_PUBLIC:
+        sendPublicHandler(r);
+        break;
+      default:
+        r.error("Unknown Error");
+    }
+  }
 
-    @Override
-    void processMessage(String pClientIP, int pClientPort, String pMessage) {
-        Commands.CommandInfo info = Commands.parse(pMessage);
-        Consumer<String> answer = s -> send(pClientIP, pClientPort, s);
+  private void log(Request r) {
+    String nickname = "";
+    System.out.printf(
+      "%s@%s:%s : %s %s",
+      nickname, r.address.ip, r.address.port,
+      r.cmd.verb, String.join(" ", r.cmd.args)
+    );
 
-        UserInformation sender = findUserByAddress(pClientIP, pClientPort);
-        if (sender != null) {
-            log(sender, info);
+    System.out.println();
+  }
+
+  /*
+    # Handlers
+   */
+
+  private void login(Request r) {
+    String nickname = r.cmd.args.get(0);
+
+    User newUser = new User(r.address, nickname);
+
+    userRepository.add(newUser);
+
+    r.success("203 Logged in");
+  }
+
+  private void newGroup(Request r) {
+    String groupId = r.cmd.args.get(0);
+    List<String> userNames = r.cmd.args.subList(1, r.cmd.args.size());
+
+    List<User> users = userNames
+      .parallelStream()
+      .map(u -> {
+        try {
+          return userRepository.find(u);
+        } catch (UserRepository.UserBannedException ignored) {
+          return null;
         }
+      })
+      .collect(Collectors.toList());
 
-        switch (info.cmd) {
-            case Commands.SET_NICK:
-                setNick(answer, pClientIP, pClientPort, info.args);
-                break;
-            case Commands.WHISPER:
-                whisper(sender, info.args);
-                break;
-            case Commands.SEND_ALL:
-                sendAll(sender, info.args);
-                break;
-        }
+    boolean allKnown = users
+      .parallelStream()
+      .allMatch(Objects::nonNull);
+
+    if (!allKnown) {
+      r.error("One of the users is unknown.");
+      return;
     }
 
-    private void sendAll(UserInformation sender, String... args) {
-        String msg = args[0];
+    Group g = new Group(groupId, users);
+    groupRepository.add(g);
 
-        String cmd = Commands.build(Commands.NEW_MESSAGE, sender.nick, msg);
-        sendToAll(cmd);
+    r.success("200 Success.");
+  }
+
+  private void sendHandler(Request r) {
+    String recipientIdentifier = r.cmd.args.get(0);
+    String msg = r.cmd.args.get(1);
+
+    Recipiable recipient = findRecipient(recipientIdentifier);
+    String cmd = Command.build(CommandVerb.NEW_MESSAGE, r.user.nickname, recipient.getIdentifier(), msg);
+
+    for (User u : recipient.getUsers()) {
+      send(u, cmd);
     }
 
-    private void whisper(UserInformation from, String... args) {
-        String toNick = args[0];
-        String msg = args[1];
-        UserInformation to = findUserByNick(toNick);
+    r.success("200 Success");
+  }
 
-        String cmd = Commands.build(Commands.NEW_MESSAGE, from.nick, msg);
-        sendToUser(to, cmd);
+  private void helpHandler(Request r) {
+    r.answer(
+      "THIS IS THE HELP :)"
+    );
+  }
+
+  private void banUserHandler(Request r) {
+    String userToBan = r.cmd.args.get(0);
+
+    userRepository.ban(userToBan);
+
+    r.success("200 Success");
+  }
+
+  private void quitHandler(Request r) {
+    userRepository.remove(r.user);
+
+    r.success("200 Success");
+  }
+
+  private void sendPublicHandler(Request r) {
+    String msg = r.cmd.args.get(0);
+
+    String cmd = Command.build(CommandVerb.NEW_PUBLIC_MESSAGE, r.user.nickname, msg);
+    sendToAll(cmd);
+
+    r.success("200 Success");
+  }
+
+  /*
+    # Helpers
+   */
+  private void publishRecipients() {
+    HashSet<String> recipients = userRepository.getIdentifiers();
+    recipients.addAll(groupRepository.getIdentifiers());
+
+    String cmd = Command.build(CommandVerb.RECIPIENTS_CHANGE, recipients);
+    sendToAll(cmd);
+  }
+
+  private Recipiable findRecipient(String identifier) {
+    try {
+      Recipiable u = userRepository.find(identifier);
+      if (u != null) {
+        return u;
+      }
+
+      Recipiable g = groupRepository.find(identifier);
+      return g;
+    } catch (UserRepository.UserBannedException e) {
+      return null;
     }
+  }
 
-    private UserInformation findUserByNick(String nick) {
-        return usersByNick.get(nick);
-    }
+  private void send(User u, String msg) {
+    send(u.address, msg);
+  }
 
-    private UserInformation findUserByAddress(String host, int port) {
-        return usersByAddress.get(userAddress(host, port));
-    }
+  private void send(Address a, String msg) {
+    send(a.ip, a.port, msg);
+  }
 
-    private void setNick(Consumer<String> answer, String ip, int port, String... args) {
-        String nick = args[0];
-        if (usersByNick.containsKey(nick)) {
-            answer.accept("-400 Username already taken.");
-            return;
-        }
-
-        UserInformation info = new UserInformation(ip, port, nick);
-
-        addUser(info);
-
-        answer.accept("+200 Success.");
-    }
-
-    private void sendToUser(UserInformation u, String msg) {
-        send(u.ip, u.port, msg);
-    }
-
-    private static String userAddress(UserInformation userInformation) {
-        return userAddress(userInformation.ip, userInformation.port);
-    }
-
-    private static String userAddress(String host, int port) {
-        return host + ";" + port;
-    }
-
-    private void log(String msg) {
-        System.out.println(msg);
-    }
-
-    private void log(UserInformation user, Commands.CommandInfo cmd) {
-        String log = String.format(
-                "%s@%s:%s: %s %s",
-                user.nick, user.ip, user.port,
-                cmd.cmd, String.join(" ", cmd.args)
-        );
-        log(log);
-    }
-
-    private void publishUsers() {
-        Set<String> users = usersByNick.keySet();
-        String cmd = Commands.build(Commands.USER_CHANGE, users);
-        sendToAll(cmd);
-    }
-
-    private void addUser(UserInformation user) {
-        usersByNick.put(user.nick, user);
-        usersByAddress.put(userAddress(user), user);
-        publishUsers();
-    }
-
-    private void removeUser(UserInformation user) {
-        usersByAddress.remove(userAddress(user));
-        usersByNick.remove(user.nick);
-        publishUsers();
-    }
-
-    @Override
-    void processClosedConnection(String pClientIP, int pClientPort) {
-        UserInformation user = findUserByAddress(pClientIP, pClientPort);
-        removeUser(user);
-    }
-
-    static class UserInformation {
-        final String ip;
-        final int port;
-        final String nick;
-
-        public UserInformation(String ip, int port, String nick) {
-            this.ip = ip;
-            this.port = port;
-            this.nick = nick;
-        }
-    }
-
-    static Scanner scanner = new Scanner(System.in);
-    public static void main(String... args) {
-        System.out.println("Port: ");
-        int port = scanner.nextInt();
-        new ChatServer(port);
-    }
+  public static void main(String... args) {
+    new ChatServer(3000);
+  }
 }

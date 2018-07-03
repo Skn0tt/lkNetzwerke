@@ -6,7 +6,7 @@
   * @author
   */
 
-public class List {
+public class NrwList {
 
   // Anfang Attribute
   private Node first;
@@ -38,7 +38,7 @@ public class List {
     }
   }
   
-  public List() { first = null; last= null; current = null; }
+  public NrwList() { first = null; last= null; current = null; }
   public boolean isEmpty() { return first == null; }
   public boolean hasAccess() { return current != null; }
   public void next() { if (hasAccess()) current = current.getNext(); }
@@ -69,9 +69,9 @@ public class List {
         last = newNode;
       } else {
         if (hasAccess()) {
-          if (current == first) { // Anfang der Liste einfügen
+          if (current == first) { // Anfang der Liste einfï¿½gen
             first = new Node(pObject, current);
-          } else {                // mittendrineinfügen
+          } else {                // mittendrineinfï¿½gen
             Node newNode = new Node(pObject, current);
             Node prev = getPrevious();
             prev.setNext(newNode);
@@ -81,7 +81,7 @@ public class List {
     }
   }
   
-  public void concat(List pList) {
+  public void concat(NrwList pList) {
     if (pList != null && !pList.isEmpty()) {
       pList.toFirst();
       while (!pList.isEmpty()) {

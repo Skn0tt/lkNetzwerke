@@ -1,8 +1,4 @@
-import com.intellij.uiDesigner.core.GridConstraints;
-import com.intellij.uiDesigner.core.GridLayoutManager;
-
 import javax.swing.*;
-import java.awt.*;
 
 /**
  * Created by simon.knott on 29.06.2018.
@@ -18,17 +14,19 @@ public class ChatClientGUI {
     private JButton connectButton;
     private JComboBox<String> recipientBox;
     private JButton disconnectButton;
+    private JButton banButton;
 
     private ChatClient client;
 
     private static final String ALL_USERS = "ALL_USERS";
 
-    public ChatClientGUI() {
+    private ChatClientGUI() {
         JFrame frame = new JFrame("Composer");
 
         sendButton.addActionListener(e -> sendMessage());
         connectButton.addActionListener(e -> connect());
         disconnectButton.addActionListener(e -> disconnect());
+        banButton.addActionListener(e -> banUser());
 
         frame.setContentPane(mainPanel);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -41,7 +39,9 @@ public class ChatClientGUI {
         int port = Integer.parseInt(portInput.getText());
         String nick = nickInput.getText();
 
-        client = new ChatClient(ip, port, nick);
+        try {
+            client = new ChatClient(ip, port, nick);
+        } catch (ChatClient.CommandFailedException ignored) {}
 
         registerListeners();
     }
@@ -50,18 +50,23 @@ public class ChatClientGUI {
         try {
             client.leave();
         } catch (ChatClient.CommandFailedException e) {
-
+            handleException(e);
         }
     }
 
     private void registerListeners() {
         client.onMessage(this::onMessage);
-        client.onUserChange(this::onUsersChange);
+        client.onRecipiableChange(this::onUsersChange);
     }
 
     private void onMessage(ChatClient.MessageInformation msg) {
-        String line = String.format("%s: %s", msg.sender, msg.msg);
+        String line = msg.isPublic
+          ? String.format("%s: %s", msg.sender, msg.msg)
+          : String.format("%s to %s: %s", msg.sender, msg.recipient, msg.msg);
+
+
         messageView.append(line);
+        messageView.append("\n");
     }
 
     private void onUsersChange(java.util.List<String> users) {
@@ -74,24 +79,35 @@ public class ChatClientGUI {
         String recipient = (String) recipientBox.getSelectedItem();
         String msg = messageInput.getText();
 
+        assert recipient != null;
+
         try {
             if (recipient.equals(ALL_USERS)) {
                 client.sendPublicMessage(msg);
             } else {
-                client.whisper(recipient, msg);
+                client.sendMessage(recipient, msg);
             }
         } catch (ChatClient.CommandFailedException e) {
             handleException(e);
         }
     }
 
+    private void banUser() {
+        String user = (String) recipientBox.getSelectedItem();
+        if (user.equals(ALL_USERS)) {
+            return;
+        }
+
+        try {
+            client.ban(user);
+        } catch (ChatClient.CommandFailedException ignored) {}
+    }
+
     private void handleException(ChatClient.CommandFailedException e) {
         JOptionPane.showMessageDialog(mainPanel, e.getMessage());
     }
 
-    private void createUIComponents() {
-
-    }
+    private void createUIComponents() {}
 
     public static void main(String[] args) {
         new ChatClientGUI();

@@ -19,7 +19,7 @@ public abstract class Server
 
    // Objekte
     private ServerSocket serverSocket;
-    private List verbindungen;
+    private NrwList verbindungen;
     private ServerSchleife schleife;
     
     // Attribute
@@ -115,7 +115,7 @@ public abstract class Server
             //Socket oeffnen
             serverSocket = new ServerSocket(pPortNr);
             zPort = pPortNr;
-            verbindungen = new List();
+            verbindungen = new NrwList();
             schleife = new ServerSchleife(this);
             schleife.start();
         }
