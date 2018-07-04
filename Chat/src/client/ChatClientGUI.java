@@ -1,3 +1,5 @@
+package client;
+
 import javax.swing.*;
 
 /**
@@ -15,6 +17,7 @@ public class ChatClientGUI {
     private JComboBox<String> recipientBox;
     private JButton disconnectButton;
     private JButton banButton;
+    private JButton createGroupButton;
 
     private ChatClient client;
 
@@ -27,6 +30,7 @@ public class ChatClientGUI {
         connectButton.addActionListener(e -> connect());
         disconnectButton.addActionListener(e -> disconnect());
         banButton.addActionListener(e -> banUser());
+        createGroupButton.addActionListener(e -> createGroup());
 
         frame.setContentPane(mainPanel);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -52,6 +56,14 @@ public class ChatClientGUI {
         } catch (ChatClient.CommandFailedException e) {
             handleException(e);
         }
+    }
+
+    private void createGroup() {
+        new CreateGroupDialog(r -> {
+            try {
+                client.createGroup(r.identifier, r.members);
+            } catch (ChatClient.CommandFailedException ignored) {}
+        });
     }
 
     private void registerListeners() {
@@ -94,6 +106,9 @@ public class ChatClientGUI {
 
     private void banUser() {
         String user = (String) recipientBox.getSelectedItem();
+        if (user == null) {
+            return;
+        }
         if (user.equals(ALL_USERS)) {
             return;
         }

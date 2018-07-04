@@ -1,3 +1,5 @@
+package server.user;
+
 import java.util.HashSet;
 
 interface RecipientSearchable {

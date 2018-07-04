@@ -1,12 +1,18 @@
+package server.request;
+
+import server.Command;
+import server.user.Address;
+import server.user.User;
+import server.user.UserRepository;
+
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class RequestBuilder {
 
   private final FindUser getUser;
   private final Consumer<Answer> onAnswer;
 
-  interface FindUser {
+  public interface FindUser {
     User get(Address a) throws UserRepository.UserBannedException;
   }
 
@@ -24,13 +30,13 @@ public class RequestBuilder {
     return new Request(cmd, address, answer, user);
   }
 
-  static class Answer {
+  public static class Answer {
 
-    final String ip;
-    final int port;
-    final String msg;
+    public final String ip;
+    public final int port;
+    public final String msg;
 
-    public Answer(String ip, int port, String msg) {
+    Answer(String ip, int port, String msg) {
       this.ip = ip;
       this.port = port;
       this.msg = msg;

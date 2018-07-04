@@ -1,3 +1,5 @@
+package nrw;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -5,8 +7,8 @@ import java.net.Socket;
  * <p>Materialien zu den zentralen
  * Abiturpruefungen im Fach Informatik ab 2012 in
  * Nordrhein-Westfalen.</p>
- * <p>Klasse Server</p>
-* Ein Server ist ein vereinfachter ServerSocket, der zus&auml;tzliche Funktionen hat.<br>
+ * <p>Klasse nrw.Server</p>
+* Ein nrw.Server ist ein vereinfachter ServerSocket, der zus&auml;tzliche Funktionen hat.<br>
 * Es k&ouml;nnen beliebig viele Kontakte mit Clientverbindungen aufgebaut werden.<br>
 * Der Dialog mit den Clients wird nebenl&auml;ufig realisiert.
 * <p>NW-Arbeitsgruppe: Materialentwicklung zum Zentralabitur
@@ -26,7 +28,7 @@ public abstract class Server
     private int zPort;
     
     /**
-    Verbindung des Servers mit einem Client.<br>
+    Verbindung des Servers mit einem nrw.Client.<br>
     Kann nebenl&aumlaeufig die empfangenen Nachrichten bearbeiten.
     @author Horst Hildebrecht
     @version 1.0 
@@ -35,11 +37,11 @@ public abstract class Server
     {
         // Objekte
         Server server;
-        //Connection sConnection;
+        //nrw.Connection sConnection;
         /*
         Die ServerVerbindung wurde inialisiert.
         @param pSocket Socket, der die Verbindung beschreibt
-        @param pServer Server, den die ServerVerbindung kennen lernt
+        @param pServer nrw.Server, den die ServerVerbindung kennen lernt
         */
         public ServerConnection(Socket pSocket, Server pServer)
         {
@@ -48,7 +50,7 @@ public abstract class Server
         }
         
         /**
-        Solange der Client Nachrichten sendete, wurden diese empfangen und an die Server weitergereicht.<br>
+        Solange der nrw.Client Nachrichten sendete, wurden diese empfangen und an die nrw.Server weitergereicht.<br>
         Abgebrochene Verbindungen wurden erkannt.
         */
         public void run()
@@ -90,22 +92,22 @@ public abstract class Server
                 {
                     Socket lClientSocket = server.serverSocket.accept();
                     ServerConnection lNeueSerververbindung = new ServerConnection(lClientSocket, server);
-                    // Der Client laeuft in einem eigenen Thread, damit mehrere Clients gleichzeitig
-                    // auf den Server zugreifen koennen.
+                    // Der nrw.Client laeuft in einem eigenen Thread, damit mehrere Clients gleichzeitig
+                    // auf den nrw.Server zugreifen koennen.
                     server.ergaenzeVerbindung(lNeueSerververbindung);
                     lNeueSerververbindung.start();
                  }
 
                 catch (Exception pFehler)
                 {
-                    System.err.println("Fehler beim Erwarten einer Verbindung in Server: " + pFehler);
+                    System.err.println("Fehler beim Erwarten einer Verbindung in nrw.Server: " + pFehler);
                 }    
              }
          }               
     }
 
        /**
-    Der Server ist initialisiert.
+    Der nrw.Server ist initialisiert.
     @param pPortNr Portnummer des Sockets
     */
     public Server(int pPortNr)
@@ -122,13 +124,13 @@ public abstract class Server
 
         catch (Exception pFehler)
         {
-            System.err.println("Fehler beim \u00D6ffnen der Server: " + pFehler);
+            System.err.println("Fehler beim \u00D6ffnen der nrw.Server: " + pFehler);
         }       
     }
     
     public String toString()
     {
-        return "Server von ServerSocket: " + serverSocket;
+        return "nrw.Server von ServerSocket: " + serverSocket;
     }
     
     private void ergaenzeVerbindung(ServerConnection pVerbindung)
@@ -160,7 +162,7 @@ public abstract class Server
     }
           
     /**
-    Eine Nachricht wurde an einen Client geschickt.
+    Eine Nachricht wurde an einen nrw.Client geschickt.
     @param pClientIP IP-Nummer des Empf&auml;ngers
     @param pClientPort Port-Nummer des Empf&auml;ngers
     @param pMessage die verschickte Nachricht
@@ -225,35 +227,29 @@ public abstract class Server
             verbindungen.next();
         }   
     }
+
+    public abstract void processNewConnection(String pClientIP, int pClientPort);
     
     /**
-    Ein neuer Client hat sich angemeldet.<br>
-    Diese leere Methode kann in einer Unterklasse realisiert werden (Begr&uuml;&szlig;ung).
-    @param pClientIP IP-Nummer des Clients, der neu angemeldet ist
-    @param pClientPort Port-Nummer des Clients, der neu angemeldet ist
-    */
-    abstract void processNewConnection(String pClientIP, int pClientPort);
-    
-    /**
-    Eine Nachricht von einem Client wurde bearbeitet.<br>
+    Eine Nachricht von einem nrw.Client wurde bearbeitet.<br>
     Diese leere Methode sollte in Unterklassen &uuml;berschrieben werden.
     @param pClientIP IP-Nummer des Clients, der die Nachricht geschickt hat
     @param pClientPort Port-Nummer des Clients, der die Nachricht geschickt hat
     @param pMessage Die empfangene Nachricht, die bearbeitet werden soll
     */
 
-    abstract void processMessage(String pClientIP, int pClientPort, String pMessage);
+    public abstract void processMessage(String pClientIP, int pClientPort, String pMessage);
 
     /**
-    Die Verbindung mit einem Client wurde beendet oder verloren.<br>
+    Die Verbindung mit einem nrw.Client wurde beendet oder verloren.<br>
     Diese leere Methode kann in einer Unterklasse realisiert werden.
     @param pClientIP IP-Nummer des Clients, mit dem die Verbindung beendet wurde
     @param pClientPort Port-Nummer des Clients, mit dem die Verbindung beendet wurde
     */
-    abstract void processClosedConnection(String pClientIP, int pClientPort);
+    public abstract void processClosedConnection(String pClientIP, int pClientPort);
     
     /**
-    Der Server wurde geschlossen.
+    Der nrw.Server wurde geschlossen.
     */
     public void close()
     {

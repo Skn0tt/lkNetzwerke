@@ -1,10 +1,12 @@
+package server.user;
+
 import java.util.Collections;
 import java.util.List;
 
 public class User implements Recipiable {
 
-  final Address address;
-  final String nickname;
+  public final Address address;
+  public final String nickname;
 
   public User(Address address, String nickname) {
     this.address = address;

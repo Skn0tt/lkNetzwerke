@@ -1,27 +1,29 @@
+package server;
+
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * Created by simon.knott on 29.06.2018.
  */
-class Command {
-    final CommandVerb verb;
-    final List<String> args;
+public class Command {
+    public final CommandVerb verb;
+    public final List<String> args;
 
     private Command(CommandVerb verb, List<String> args) {
         this.verb = verb;
         this.args = args;
     }
 
-    static String build(CommandVerb cmd, String... args) {
+    public static String build(CommandVerb cmd, String... args) {
         return cmd + " " + String.join(" ", args);
     }
 
-    static String build(CommandVerb cmd, Iterable<String> args) {
+    public static String build(CommandVerb cmd, Iterable<String> args) {
         return cmd + " " + String.join(" ", args);
     }
 
-    static Command parse(String cmd) throws CommandVerbUnknownException {
+    public static Command parse(String cmd) throws CommandVerbUnknownException {
         List<String> parts = Arrays.asList(cmd.split(" "));
         String rawVerb = parts.get(0);
         List<String> args = parts.subList(1, parts.size());
@@ -35,9 +37,9 @@ class Command {
         }
     }
 
-    static class CommandVerbUnknownException extends Exception {
+    public static class CommandVerbUnknownException extends Exception {
         CommandVerbUnknownException(String args) {
-            super("Command unknown: " + args);
+            super("server.Command unknown: " + args);
         }
     }
 

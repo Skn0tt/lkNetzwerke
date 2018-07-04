@@ -1,9 +1,11 @@
+package nrw;
+
 /**
  * <p>Materialien zu den zentralen
  * Abiturpruefungen im Fach Informatik ab 2012 in
  * Nordrhein-Westfalen.</p>
- * <p>Klasse Client</p>
-* Ein Client kann &uuml;ber das Netz die Verbindung zu einem Server herstellen.<br>
+ * <p>Klasse nrw.Client</p>
+* Ein nrw.Client kann &uuml;ber das Netz die Verbindung zu einem nrw.Server herstellen.<br>
 * Fehlermeldungen werden ausgegeben.<br>
 * Die Eingaben werden nebenl&auml;ufig verarbeitet.
 * <p>NW-Arbeitsgruppe: Materialentwicklung zum Zentralabitur
@@ -19,7 +21,7 @@ public abstract class Client
     private Clientempfaenger hatEmpfaenger;
      
     /**
-    Hilfsklasse fuer den Client, die in einem eigenen Thread den Empfang einer Nachricht vom Server realisiert.
+    Hilfsklasse fuer den nrw.Client, die in einem eigenen Thread den Empfang einer Nachricht vom nrw.Server realisiert.
     @author Horst Hildebrecht
     @version 1.0 vom 15.06.2006
     */
@@ -33,9 +35,9 @@ public abstract class Client
         private boolean zVerbindungAktiv;
     
         /**
-        Der ClientEmpfaenger hat den zugeh&ouml;rigen Client und die zugeh&ouml;rige Connection kennen gelernt.<br>
-        @param pClient zugeh&ouml;riger Client, der die einkommenden Nachrichten bearbeitet
-        @param pConnection zugeh&ouml;rige Connection, die die einkommenden Nachrichten empf�ngt
+        Der ClientEmpfaenger hat den zugeh&ouml;rigen nrw.Client und die zugeh&ouml;rige nrw.Connection kennen gelernt.<br>
+        @param pClient zugeh&ouml;riger nrw.Client, der die einkommenden Nachrichten bearbeitet
+        @param pConnection zugeh&ouml;rige nrw.Connection, die die einkommenden Nachrichten empf�ngt
         */
         public Clientempfaenger(Client pClient, Connection pConnection)
         {
@@ -45,7 +47,7 @@ public abstract class Client
         }
         
         /**
-        Solange der Server Nachrichten sendete, wurden diese empfangen und an die ClientVerbinedung weitergereicht.
+        Solange der nrw.Server Nachrichten sendete, wurden diese empfangen und an die ClientVerbinedung weitergereicht.
         */
         public void run()
         {
@@ -74,7 +76,7 @@ public abstract class Client
     }
     
     /**
-    Der Client ist mit Ein- und Ausgabestreams initialisiert.<br>
+    Der nrw.Client ist mit Ein- und Ausgabestreams initialisiert.<br>
     @param pIPAdresse IP-Adresse bzw. Domain des Servers
     @param pPortNr Portnummer des Sockets
     */
@@ -112,7 +114,7 @@ public abstract class Client
     }
     
     /**
-     Eine Nachricht vom Server wurde bearbeitet.<br>
+     Eine Nachricht vom nrw.Server wurde bearbeitet.<br>
      Diese abstrakte Methode muss in Unterklassen &uuml;berschrieben werden.
      @param pMessage die empfangene Nachricht, die bearbeitet werden soll
     */

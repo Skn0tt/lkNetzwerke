@@ -1,3 +1,10 @@
+package server;
+
+import nrw.Server;
+import server.request.Request;
+import server.request.RequestBuilder;
+import server.user.*;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -19,23 +26,20 @@ public class ChatServer extends Server {
     System.out.printf("Chatserver listening on %s.", port);
   }
 
-  @Override
-  void processNewConnection(String pClientIP, int pClientPort) {}
+  public void processNewConnection(String pClientIP, int pClientPort) {}
 
-  @Override
-  void processMessage(String pClientIP, int pClientPort, String pMessage) {
+  public void processMessage(String pClientIP, int pClientPort, String pMessage) {
     try {
       Request r = requestBuilder.build(pClientIP, pClientPort, pMessage);
       onRequest(r);
     } catch (Command.CommandVerbUnknownException e) {
-      send(pClientIP, pClientPort, "-CommandVerb unknown");
+      send(pClientIP, pClientPort, "-server.CommandVerb unknown");
     } catch (UserRepository.UserBannedException e) {
       send(pClientIP, pClientPort, "-You are banned.");
     }
   }
 
-  @Override
-  void processClosedConnection(String pClientIP, int pClientPort) {}
+  public void processClosedConnection(String pClientIP, int pClientPort) {}
 
   private void onRequest(Request r) {
     log(r);

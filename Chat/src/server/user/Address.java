@@ -1,6 +1,8 @@
-class Address {
-  final String ip;
-  final int port;
+package server.user;
+
+public class Address {
+  public final String ip;
+  public final int port;
 
   private Address(String ip, int port) {
     this.ip = ip;
@@ -9,7 +11,7 @@ class Address {
 
   @Override
   public String toString() {
-    return "Address{" +
+    return "server.user.Address{" +
       "ip='" + ip + '\'' +
       ", port=" + port +
       '}';

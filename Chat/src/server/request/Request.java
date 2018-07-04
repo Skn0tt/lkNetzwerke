@@ -1,13 +1,18 @@
+package server.request;
+
 import com.sun.istack.internal.Nullable;
+import server.Command;
+import server.user.Address;
+import server.user.User;
 
 import java.util.function.Consumer;
 
-class Request {
+public class Request {
 
-  final Command cmd;
-  final Address address;
-  final boolean userKnown;
-  final User user;
+  public final Command cmd;
+  public final Address address;
+  public final boolean userKnown;
+  public final User user;
 
   private final Consumer<String> answer;
 
@@ -19,15 +24,15 @@ class Request {
     this.user = user;
   }
 
-  void answer(String msg) {
+  public void answer(String msg) {
     answer.accept(msg);
   }
 
-  void success(String msg) {
+  public void success(String msg) {
     answer("+" + msg);
   }
 
-  void error(String msg) {
+  public void error(String msg) {
     answer("-" + msg);
   }
 

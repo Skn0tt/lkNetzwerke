@@ -1,3 +1,5 @@
+package nrw;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,9 +10,9 @@ import java.net.Socket;
  * <p>Materialien zu den zentralen
  * Abiturpruefungen im Fach Informatik ab 2012 in
  * Nordrhein-Westfalen.</p>
- * <p>Klasse Connection</p>
- * <p>Objekte der Klasse Connection erm�glichen eine Netzwerkverbindung mit
- * dem TCP/IP-Protokoll. Es k�nnen nach Verbindungsaufbau zu einem Server
+ * <p>Klasse nrw.Connection</p>
+ * <p>Objekte der Klasse nrw.Connection erm�glichen eine Netzwerkverbindung mit
+ * dem TCP/IP-Protokoll. Es k�nnen nach Verbindungsaufbau zu einem nrw.Server
  * Zeichenketten (Strings) gesendet und empfangen werden. Zur Vereinfachung
   * geschieht dies zeilenweise, d. h., beim Senden einer Zeichenkette wird ein
   * Zeilentrenner erg�nzt und beim Empfangen wird er entfernt.</p>
@@ -29,7 +31,7 @@ public class Connection extends Thread {
 
     /** 
      * Es wird eine Verbindung zum durch IP-Adresse und Portnummer angegebenen
-     *  Server aufgebaut, so dass Daten gesendet und empfangen werden k�nnen.
+     *  nrw.Server aufgebaut, so dass Daten gesendet und empfangen werden k�nnen.
      */
     public Connection(String serverName, int port){
         this.serverName = serverName;
@@ -66,8 +68,8 @@ public class Connection extends Thread {
     }
     
   /** 
-   * Es wird auf eine eingehende Nachricht vom Server gewartet und diese
-   * Nachricht zur�ckgegeben, wobei der vom Server angeh�ngte Zeilentrenner
+   * Es wird auf eine eingehende Nachricht vom nrw.Server gewartet und diese
+   * Nachricht zur�ckgegeben, wobei der vom nrw.Server angeh�ngte Zeilentrenner
    * entfernt wird. W�hrend des Wartens ist der ausf�hrende Prozess blockiert.
    */
     public String receive() {
@@ -81,7 +83,7 @@ public class Connection extends Thread {
     }
  /** 
   * Die angegebene Nachricht pMessage wird - um einen Zeilentrenner erweitert -
-  * an den Server versandt.
+  * an den nrw.Server versandt.
   */
     public void send(String nachricht) {
         zumHost.println(nachricht);

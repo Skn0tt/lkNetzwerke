@@ -1,3 +1,5 @@
+package server;
+
 public enum CommandVerb {
   QUIT("QUIT"),
   SEND("SEND"),

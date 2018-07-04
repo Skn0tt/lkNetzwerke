@@ -1,3 +1,9 @@
+package client;
+
+import server.Command;
+import nrw.Client;
+import server.CommandVerb;
+
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -66,6 +72,15 @@ public class ChatClient extends Client {
         send(CommandVerb.QUIT);
     }
 
+    public void createGroup(String identifier, String... members) throws CommandFailedException {
+        List<String> args = new ArrayList<>();
+
+        args.add(identifier);
+        args.addAll(Arrays.asList(members));
+
+        send(CommandVerb.NEW_GROUP, args);
+    }
+
     /*
       # Listeners
      */
@@ -115,6 +130,12 @@ public class ChatClient extends Client {
     }
 
     private void send(CommandVerb verb, String... args) throws CommandFailedException {
+        String cmd = Command.build(verb, args);
+        send(cmd);
+        checkResponse();
+    }
+
+    private void send(CommandVerb verb, Iterable<String> args) throws CommandFailedException {
         String cmd = Command.build(verb, args);
         send(cmd);
         checkResponse();

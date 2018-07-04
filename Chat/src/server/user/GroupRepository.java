@@ -1,3 +1,5 @@
+package server.user;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -7,7 +9,7 @@ public class GroupRepository implements RecipientSearchable {
   private final Map<String, Group> groups = new HashMap<>();
   private final Consumer<String> onChange;
 
-  GroupRepository(Consumer<String> onChange) {
+  public GroupRepository(Consumer<String> onChange) {
     this.onChange = onChange;
   }
 
@@ -20,12 +22,12 @@ public class GroupRepository implements RecipientSearchable {
     return new HashSet<>(groups.keySet());
   }
 
-  void add(Group group) {
+  public void add(Group group) {
     groups.put(group.getIdentifier(), group);
     onChange.accept(group.getIdentifier());
   }
 
-  void remove(Group group) {
+  public void remove(Group group) {
     groups.remove(group.getIdentifier());
     onChange.accept(group.getIdentifier());
   }

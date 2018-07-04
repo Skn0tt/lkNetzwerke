@@ -1,3 +1,5 @@
+package server.user;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -11,7 +13,7 @@ public class UserRepository implements RecipientSearchable {
 
   private final Consumer<String> onChange;
 
-  UserRepository(Consumer<String> onChange) {
+  public UserRepository(Consumer<String> onChange) {
     this.onChange = onChange;
   }
 
@@ -45,21 +47,21 @@ public class UserRepository implements RecipientSearchable {
     return bannedAddresses.contains(a.toString());
   }
 
-  void add(User user) {
+  public void add(User user) {
     byAddress.put(user.address.toString(), user);
     byNickname.put(user.getIdentifier(), user);
 
     onChange.accept(user.nickname);
   }
 
-  void remove(User user) {
+  public void remove(User user) {
     byAddress.remove(user.address.toString());
     byNickname.remove(user.getIdentifier());
 
     onChange.accept(user.nickname);
   }
 
-  void ban(Address a) {
+  public void ban(Address a) {
     try {
       User u = find(a);
 
@@ -72,18 +74,18 @@ public class UserRepository implements RecipientSearchable {
     } catch (UserBannedException ignored) {}
   }
 
-  void ban(User u) {
+  public void ban(User u) {
     ban(u.address);
   }
 
-  void ban(String nick) {
+  public void ban(String nick) {
     try {
       User u = find(nick);
       ban(u);
     } catch (UserBannedException ignored) {}
   }
 
-  static class UserBannedException extends Exception {
+  public static class UserBannedException extends Exception {
     UserBannedException(User user) {
       super(user.nickname + "is banned.");
     }

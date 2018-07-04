@@ -1,3 +1,5 @@
+package server.user;
+
 import java.util.List;
 
 public class Group implements Recipiable {
