@@ -4,9 +4,11 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Chat/Chat.iml" filepath="$PROJECT_DIR$/Chat/Chat.iml" />
       <module fileurl="file://$PROJECT_DIR$/Echo/Echo.iml" filepath="$PROJECT_DIR$/Echo/Echo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/KeyExchange/KeyExchange.iml" filepath="$PROJECT_DIR$/KeyExchange/KeyExchange.iml" />
       <module fileurl="file://$PROJECT_DIR$/MailSender/MailSender.iml" filepath="$PROJECT_DIR$/MailSender/MailSender.iml" />
       <module fileurl="file://$PROJECT_DIR$/Nim/Nim.iml" filepath="$PROJECT_DIR$/Nim/Nim.iml" />
       <module fileurl="file://$PROJECT_DIR$/Time/Time.iml" filepath="$PROJECT_DIR$/Time/Time.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Zeitabfrage/Zeitabfrage.iml" filepath="$PROJECT_DIR$/Zeitabfrage/Zeitabfrage.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/lkNetzwerke.iml" filepath="$PROJECT_DIR$/.idea/lkNetzwerke.iml" />
     </modules>
   </component>
