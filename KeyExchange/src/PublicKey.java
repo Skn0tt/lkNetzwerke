@@ -10,6 +10,10 @@ public class PublicKey {
         this.g = g;
     }
 
+    public PublicKey(String p, String g) {
+        this(new BigInteger(p), new BigInteger(g));
+    }
+
     public static boolean isLegalP(BigInteger p) {
         return PrimeHelper.isPrime(p);
     }

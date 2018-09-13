@@ -65,7 +65,7 @@ Der Server besteht aus zwei Teilen:
 
 Die Nutzerverwaltung besteht aus einigen Klassen und Interfaces, die größtenteils sehr trivial sind und durch das UML-Diagramm zur genüge beschrieben sind.
 
-Genauer möchte ich auf das `UserRepository` eingehen:
+Genauer möchte ich auf das `TwoObjectRepository` eingehen:
 
 ```java
 private final Map<String, User> byAddress = new HashMap<>();
@@ -90,7 +90,7 @@ Ein Set enthält jeden Wert nur einmal und kann schnell auf einen Werts überpr�
 private final Consumer<String> onChange;
 ```
 Ein `Consumer<T>` ist ein Objekt mit der Methode `.accept(T v)`.
-Dieses wird beim Erzeugen des `UserRepository` übergeben und löst bei jeder Nutzerveränderung aus.
+Dieses wird beim Erzeugen des `TwoObjectRepository` übergeben und löst bei jeder Nutzerveränderung aus.
 So wird das Versenden der Events von der Nutzerverwaltung abgekoppelt.
 
 ### Requests
@@ -101,7 +101,7 @@ try {
   onRequest(r);
 } catch (Command.CommandVerbUnknownException e) {
   send(pClientIP, pClientPort, "-CommandVerb unknown");
-} catch (UserRepository.UserBannedException e) {
+} catch (TwoObjectRepository.UserBannedException e) {
   send(pClientIP, pClientPort, "-You are banned.");
 }
 ```

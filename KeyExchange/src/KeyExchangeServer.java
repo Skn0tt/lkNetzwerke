@@ -1,14 +1,16 @@
+import javafx.util.Pair;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Scanner;
 
-public class KeyExchangeServer extends Server {
+public final class KeyExchangeServer extends Server {
 
     private final PublicKey publicKey = DiffieHellman.generatePublicKey();
-    private List<User> users = new ArrayList<>();
+    private final TwoObjectRepository<User> users = new TwoObjectRepository<User>();
 
 
-    public KeyExchangeServer(int port) {
+    private KeyExchangeServer(int port) {
         super(port);
         System.out.println(publicKey.toString());
     }
@@ -16,29 +18,36 @@ public class KeyExchangeServer extends Server {
     @Override
     void processNewConnection(String pClientIP, int pClientPort) {
         final User user = new User(pClientIP, pClientPort);
-        users.add(user);
-        if (users.size() > 2) {
-            send(pClientIP, pClientPort, "TOO_MANY_USERS");
-            return;
+        try {
+          users.add(user);
+        } catch (TwoObjectRepository.TooManyObjectsAddedException e) {
+          send(pClientIP, pClientPort, "TOO_MANY_USERS");
+          return;
         }
 
-        String message = String.format("PUBLIC_KEY:%s:%s", publicKey.p, publicKey.g);
-        send(pClientIP, pClientPort, message);
+        if (users.isFull()) {
+          publishPublicKey();
+        }
+    }
+
+    private void publishPublicKey() {
+      final String message = String.format("PUBLIC_KEY:%s:%s", publicKey.p, publicKey.g);
+      sendToAll(message);
     }
 
     @Override
     void processMessage(String pClientIP, int pClientPort, String pMessage) {
-        if (users.size())
-        final User user = new User(pClientIP, pClientPort);
-        final User otherUser = (User) users.stream().filter(u -> !u.equals(user)).toArray()[0];
-
-        if (otherUser == null) {
-            send(pClientIP, pClientPort, "WAIT_FOR_OTHER_USER");
+        if (!users.isFull()) {
+            send(pClientIP, pClientPort, "WAITING_FOR_SECOND_USER");
             return;
         }
 
-        String[] parts = pMessage.split(":");
-        String command = parts[0];
+        final Pair<User, User> bothUsers= users.get(new User(pClientIP, pClientPort));
+        final User currentUser = bothUsers.getKey();
+        final User otherUser = bothUsers.getValue();
+
+        final String[] parts = pMessage.split(":");
+        final String command = parts[0];
 
         switch (command) {
             case "PUBLISH_EXCHANGE_KEY":
@@ -53,12 +62,14 @@ public class KeyExchangeServer extends Server {
 
     @Override
     void processClosedConnection(String pClientIP, int pClientPort) {
-        final User user = new User(pClientIP, pClientPort);
-        users.removeIf(u -> u.equals(user));
+        users.remove(new User(pClientIP, pClientPort));
     }
 
     public static void main(String... args) {
-        new KeyExchangeServer(4000);
+      Scanner in = new Scanner(System.in);
+      System.out.println("Port:");
+      int port = in.nextInt();
+      new KeyExchangeServer(port);
     }
 
 }
