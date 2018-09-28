@@ -79,6 +79,120 @@ Eine Beispiel-Implementierung für Diffie-Hellman findet sich [in meinem GitHub-
 
 ## Asymmetrische Verschlüsselungsverfahren
 
+Verschlüsselungsverfahren, wie wir sie bisher kennen gelernt haben, verwenden zum *Ver*schlüsseln den selben Schlüssel wie zum *Ent*schlüsseln.
+In Kontrast zu diesen *symmetrischen* Verfahren stehen solche, die zum *Ver*schlüsseln und *Ent*schlüsseln zwei separate Schlüssel verwenden.
+Solche Verfahren nett man *asymmetrische*, ein Beispiel ist das als sicher geltende RSA.
+
+### RSA
+
+RSA wurde 1977 von den drei Wissenschaftlern [Ron Rivest](https://en.wikipedia.org/wiki/Ron_Rivest), [Adi Shamir](https://en.wikipedia.org/wiki/Adi_Shamir) und [Leonard Adleman](https://en.wikipedia.org/wiki/Leonard_Adleman) vorgestellt.
+
+Um RSA verwenden zu können, muss erst ein Schlüsselpaar, also ein *öffentlicher* und ein *privater* Schlüssel, erzeugt werden.
+
+Dafür werden zu Beginn zwei beliebige Primzahlen $p$ und $q$ gewählt.
+
+$$
+p \in \mathbb{P} \\
+q \in \mathbb{P}
+$$
+
+Aus diesen kann dann $N$ und $r$ ermittelt werden:
+
+$$
+N = p * q \\
+r = \phi(p, q) = (p - 1) * (q - 1)
+$$
+
+Nun wird eine weitere, beliebige Zahl $e$ gewählt, die mit $r$ Teilerfremd ist.
+
+$$
+e \in \mathbb{N} \\
+ggt(e, r) = 1
+$$
+
+Als letzte Berechnung muss nun noch $d$, das *modulare Inverse* von $e$ und $r$ gefunden werden.
+
+$$
+e * d \bmod r = 1
+$$
+
+Nun sind alle Teile des Schlüsselpaars vorhanden:
+Der *öffentliche* Schlüssel $(N, e)$ und der *private* Schlüssel $(N, d)$.
+Die anderen berechneten Werte sollten zerstört werden, um die Rekonstruktion des privaten Schlüssels zu verhindern.
+
+Möchte man nun eine Nachricht $m$ verschlüsseln, so verwendet man den *öffentlichen* Schlüssel:
+
+$$
+c = m^e \bmod N
+$$
+
+Um dieses Chiffre $c$ nun wieder zu entschlüsseln, kommt der *private* Schlüssel zum Einsatz:
+
+$$
+m = c^d \bmod N
+$$
+
+Um das Erzeugen eines Schlüssels einmal selbst auszuprobieren, kann ich die [Website der Drexel University](https://www.cs.drexel.edu/~jpopyack/IntroCS/HW/RSAWorksheet.html) sehr empfehlen.
+
+## Kryptographie in Java
+
+Kryptographische Verfahren basieren oft auf der Verwendung großer Zahlen, die gerne die Größe von 32 Bit (Java's `int`-Typ) übersteigen.
+
+Um diese Begrenzung zu umgehen, stellt das JDK die `BigInteger`-Klasse zur Verfügung.
+Sie hält beliebig große Zahlen, die einzige Grenze ist die Größe des Arbeitsspeichers.
+
+Sie verfügt außerdem schon über alle Rechenarten, die wir für die meisten Verschlüsselungsverfahren benötigen!
+
+Als Beispiel möchte ich die Implementation von *RSA* anführen.
+
+Das Ver- und Ent-schlüsseln verwendet die `a.modPow(e, m)`-Methode des BigInteger, die dem Term $a^e \bmod m$ entspricht.
+
+```java
+BigInteger encrypt(BigInteger m, BigInteger e, BigInteger N) {
+  return m.modPow(e, N);
+}
+
+BigInteger decrypt(BigInteger c, BigInteger d, BigInteger N) {
+  return c.modPow(d, N);
+}
+```
+
+Das Erzeugen eines Schlüsselpaars ist ähnlich simpel:
+
+```java
+Random random = new SecureRandom();
+BigInteger p = BigInteger.probablePrime(1024, random);
+BigInteger g = BigInteger.probablePrime(1024, random);
+
+BigInteger N = p.multiply(g);
+BigInteger r = p.subtract(BigInteger.ONE)
+                .multiply(
+                  g.subtract(BigInteger.ONE)
+                );
+
+BigInteger e = computeE(r);
+
+BigInteger d = e.modInverse(r);
+```
+
+`computeE(r)` ist eine Methode, die so lange eine zufällige Zahl $e$ erzeugt, bis sie alle drei Bedingungen erfüllt:
+
+1. $e >= 1$
+2. $e <= r$
+2. $\gcd{e, r} = 1$
+
+```java
+static BigInteger computeE(BigInteger r) {
+  BigInteger e;
+
+  do e = new BigInteger(r.bitLength(), random);
+  while (e.compareTo(BigInteger.ONE) <= 0 // 1
+          || e.compareTo(r) >= 0 // 2
+          || !e.gcd(r).equals(BigInteger.ONE)); // 3
+
+  return e;
+}
+```
 
 ## TL;DR
 
